@@ -6,10 +6,10 @@ import onnxruntime as rt
 from PIL import Image
 import huggingface_hub
 
-# Define the path to save the text files
+# Define the path to save the text files / Lokasi untuk menyimpan output tags (.txt)
 output_path = './captions/'
 
-# Specific model repository from SmilingWolf's collection
+# Specific model repository from SmilingWolf's collection / Repository Default vit tagger v3
 VIT_MODEL_DSV3_REPO = "SmilingWolf/wd-vit-tagger-v3"
 MODEL_FILENAME = "model.onnx"
 LABEL_FILENAME = "selected_tags.csv"
@@ -32,7 +32,7 @@ def load_model(model_repo):
 
     return model, tag_names, target_size
 
-# Image preprocessing function
+# Image preprocessing function / Memproses gambar
 def prepare_image(image, target_size):
     canvas = Image.new("RGBA", image.size, (255, 255, 255))
     canvas.paste(image, mask=image.split()[3] if image.mode == 'RGBA' else None)
@@ -74,19 +74,19 @@ def load_model_and_tags(model_repo):
     
     return model, tag_data, target_size
 
-# Function to tag all images in a directory and save the captions
+# Function to tag all images in a directory and save the captions / Fitur untuk tagging gambar dalam folder dan menyimpan caption dengan file .txt
 def process_predictions_with_thresholds(preds, tag_data, character_thresh, general_thresh, hide_rating_tags, character_tags_first):
     # Extract prediction scores
     scores = preds.flatten()
     
-    # Filter and sort character and general tags based on thresholds
+    # Filter and sort character and general tags based on thresholds / Filter dan pengurutan tag berdasarkan ambang batas
     character_tags = [tag_data.names[i] for i in tag_data.character if scores[i] >= character_thresh]
     general_tags = [tag_data.names[i] for i in tag_data.general if scores[i] >= general_thresh]
     
     # Optionally filter rating tags
     rating_tags = [] if hide_rating_tags else [tag_data.names[i] for i in tag_data.rating]
 
-    # Sort tags based on user preference
+    # Sort tags based on user preference / Mengurutkan tags berdasarkan keinginan pengguna
     final_tags = character_tags + general_tags if character_tags_first else general_tags + character_tags
     final_tags += rating_tags  # Add rating tags at the end if not hidden
 
@@ -96,7 +96,7 @@ def tag_images(image_folder, character_tags_first=False, general_thresh=0.35, ch
     os.makedirs(output_path, exist_ok=True)
     model, tag_data, target_size = load_model_and_tags(VIT_MODEL_DSV3_REPO)
     
-    # Process each image in the folder
+    # Process each image in the folder / Proses setiap gambar dalam folder
     processed_files = []
     
     for image_file in os.listdir(image_folder):
@@ -115,7 +115,7 @@ def tag_images(image_folder, character_tags_first=False, general_thresh=0.35, ch
             # Append the processed file to the list
             processed_files.append(image_file)
 
-    # Return both a completion message and a newline-separated list of processed files
+    # Return both a completion message and a newline-separated list of processed files / Mengeluarkan pesan penyelesaian
     return "Process completed. Check caption files in the 'captions' directory.", "\n".join(processed_files)
 
 iface = gr.Interface(
