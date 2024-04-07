@@ -1,4 +1,7 @@
 # wdv3-batch-vit-tagger
+
+![ScreenCap.png](ScreenCap.png)
+
 The successor of WD14 tagger. This batch tagger support wd-vit-tagger-v3 model by SmilingWolf which is more updated model than legacy WD14. Tested on CUDA and Windows
 
 This script is to mass captioning the image on one directory. The captioned image file output is .txt with identical filename as the source image. The default output of the caption on ./caption folder
