@@ -1,4 +1,4 @@
-pillow==10.2.0
+pillow>=10.3.0
 onnxruntime-gpu==1.16.3
 gradio
 
