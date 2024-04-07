@@ -92,7 +92,7 @@ def process_predictions_with_thresholds(preds, tag_data, character_thresh, gener
 
     return final_tags
 
-def tag_images(image_folder, character_tags_first=False, general_thresh=0.35, character_thresh=0.85, hide_rating_tags=False):
+def tag_images(image_folder, character_tags_first=False, general_thresh=0.35, character_thresh=0.85, hide_rating_tags=False, remove_separator=False):
     os.makedirs(output_path, exist_ok=True)
     model, tag_data, target_size = load_model_and_tags(VIT_MODEL_DSV3_REPO)
     
@@ -102,17 +102,20 @@ def tag_images(image_folder, character_tags_first=False, general_thresh=0.35, ch
     for image_file in os.listdir(image_folder):
         if image_file.lower().endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif')):
             image_path = os.path.join(image_folder, image_file)
-            image = Image.open(image_path).convert("RGB")
-            processed_image = prepare_image(image, target_size)
-            preds = model.run(None, {model.get_inputs()[0].name: processed_image})[0]
+            with Image.open(image_path) as image:
+                processed_image = prepare_image(image, target_size)
+                preds = model.run(None, {model.get_inputs()[0].name: processed_image})[0]
 
             final_tags = process_predictions_with_thresholds(preds, tag_data, character_thresh, general_thresh, hide_rating_tags, character_tags_first)
+            
+            final_tags_str = ", ".join(final_tags)
+            if remove_separator:
+                final_tags_str = final_tags_str.replace("_", " ")
 
             caption_file_path = os.path.join(output_path, f"{os.path.splitext(image_file)[0]}.txt")
             with open(caption_file_path, 'w') as f:
-                f.write(", ".join(final_tags))
-            
-            # Append the processed file to the list
+                f.write(final_tags_str)
+
             processed_files.append(image_file)
 
     # Return both a completion message and a newline-separated list of processed files / Mengeluarkan pesan penyelesaian
@@ -126,13 +129,14 @@ iface = gr.Interface(
         gr.Slider(minimum=0, maximum=1, step=0.01, value=0.35, label="General tags threshold"),
         gr.Slider(minimum=0, maximum=1, step=0.01, value=0.85, label="Character tags threshold"),
         gr.Checkbox(label="Hide rating tags"),
+        gr.Checkbox(label="Remove separator", value=False)
     ],
     outputs=[
         gr.Textbox(label="Status"),
         gr.Textbox(label="Processed Files")
     ],
     title="Image Captioning with SmilingWolf/wd-vit-tagger-v3",
-    description="This tool tags all images in the specified directory and saves the captions to .txt files."
+    description="This tool tags all images in the specified directory and saves the captions to .txt files. Check 'Remove separator' to replace '_' with spaces in tags."
 )
 
 if __name__ == "__main__":
