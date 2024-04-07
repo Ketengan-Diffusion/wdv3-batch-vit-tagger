@@ -21,8 +21,8 @@ Python 3.10 and CUDA GPU is required to run this script. You can download Python
 Steps to run:
 1. Clone this repository `https://github.com/Ketengan-Diffusion/wdv3-batch-vit-tagger.git`
 2. Navigate to cloned directory `cd wdv3-batch-vit-tagger`
-3*. Set up a virtual environment `python -m venv venv`
-4*. Activate the new venv:
+3. Set up a virtual environment `python -m venv venv` *
+4. Activate the new venv: *
   - Windows: `venv\scripts\activate`
 5. Install the requirements `pip install -r requirements.txt`
 6. Run the script `python wdv3tagger.py`
